@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brick Breaker Game</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    canvas {
+      border: 2px solid white;
+      background: rgba(0, 0, 0, 0.7);
+      touch-action: none;
+    }
+    #startBtn {
+      margin: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background: #00f5d4;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #gameOverOverlay {
+      visibility: hidden;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-size: 24px;
+      z-index: 10;
+    }
+    #scoreBoard {
+      color: white;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="scoreBoard">Score: 0</div>
+  <button id="startBtn">Start Game</button>
+  <div id="gameOverOverlay">
+    <p>Game Over!</p>
+    <button onclick="restartGame()">Restart</button>
+  </div>
+  <canvas id="gameCanvas" width="500" height="500"></canvas>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const overlay = document.getElementById("gameOverOverlay");
+const startBtn = document.getElementById("startBtn");
+const scoreBoard = document.getElementById("scoreBoard");
+const cw = canvas.width;
+const ch = canvas.height;
+
+let gameStarted = false;
+let animationId;
+let score = 0;
+
+const paddle = {
+  width: 100,
+  height: 15,
+  x: cw / 2 - 50,
+  y: ch - 30,
+  dx: 7,
+};
+
+const ball = {
+  x: cw / 2,
+  y: paddle.y - 10,
+  radius: 8,
+  speed: 3,
+  dx: Math.random() > 0.5 ? 3 : -3,
+  dy: -3,
+};
+
+const brick = {
+  rowCount: 12,
+  columnCount: 14,
+  width: 30,
+  height: 10,
+  padding: 5,
+  offsetTop: 20,
+  offsetLeft: 8,
+};
+
+let bricks = [];
+function initBricks() {
+  bricks = [];
+  for (let r = 0; r < brick.rowCount; r++) {
+    bricks[r] = [];
+    for (let c = 0; c < brick.columnCount; c++) {
+      bricks[r][c] = { x: 0, y: 0, status: 1 };
+    }
+  }
+}
+initBricks();
+
+let rightPressed = false;
+let leftPressed = false;
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
+  if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
+});
+document.addEventListener("keyup", (e) => {
+  if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
+  if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
+});
+
+canvas.addEventListener("touchmove", (e) => {
+  const touchX = e.touches[0].clientX;
+  paddle.x = touchX - paddle.width / 2 - canvas.getBoundingClientRect().left;
+});
+
+function drawPaddle() {
+  ctx.fillStyle = "#00f5d4";
+  ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+}
+
+function drawBall() {
+  ctx.font = `${ball.radius * 2}px serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("🔥", ball.x, ball.y);
+}
+
+function drawBricks() {
+  for (let r = 0; r < brick.rowCount; r++) {
+    for (let c = 0; c < brick.columnCount; c++) {
+      const b = bricks[r][c];
+      if (b.status === 1) {
+        const bx = c * (brick.width + brick.padding) + brick.offsetLeft;
+        const by = r * (brick.height + brick.padding) + brick.offsetTop;
+        b.x = bx;
+        b.y = by;
+        ctx.fillStyle = "#f72585";
+        ctx.fillRect(bx, by, brick.width, brick.height);
+      }
+    }
+  }
+}
+
+function collisionDetection() {
+  for (let r = 0; r < brick.rowCount; r++) {
+    for (let c = 0; c < brick.columnCount; c++) {
+      const b = bricks[r][c];
+      if (b.status === 1) {
+        const inX = ball.x + ball.radius > b.x && ball.x - ball.radius < b.x + brick.width;
+        const inY = ball.y + ball.radius > b.y && ball.y - ball.radius < b.y + brick.height;
+        if (inX && inY) {
+          const prevX = ball.x - ball.dx;
+          const prevY = ball.y - ball.dy;
+          const wasInX = prevX + ball.radius > b.x && prevX - ball.radius < b.x + brick.width;
+          const wasInY = prevY + ball.radius > b.y && prevY - ball.radius < b.y + brick.height;
+
+          if (!wasInX) {
+            ball.dx = -ball.dx;
+          } else if (!wasInY) {
+            ball.dy = -ball.dy;
+          } else {
+            ball.dy = -ball.dy;
+          }
+
+          b.status = 0;
+          score += 10;
+          scoreBoard.innerText = `Score: ${score}`;
+        }
+      }
+    }
+  }
+}
+
+function draw() {
+  if (!gameStarted) return;
+  ctx.clearRect(0, 0, cw, ch);
+  drawBricks();
+  drawPaddle();
+  drawBall();
+  collisionDetection();
+
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+
+  if (ball.x + ball.radius > cw || ball.x - ball.radius < 0) ball.dx = -ball.dx;
+  if (ball.y - ball.radius < 0) ball.dy = -ball.dy;
+
+  if (
+    ball.y + ball.radius >= paddle.y &&
+    ball.y + ball.radius <= paddle.y + paddle.height &&
+    ball.x > paddle.x &&
+    ball.x < paddle.x + paddle.width
+  ) {
+    ball.dy = -ball.dy;
+    ball.y = paddle.y - ball.radius;
+  }
+
+  if (ball.y + ball.radius > ch) {
+    overlay.style.visibility = "visible";
+    gameStarted = false;
+    cancelAnimationFrame(animationId);
+    return;
+  }
+
+  if (rightPressed && paddle.x + paddle.width < cw) paddle.x += paddle.dx;
+  if (leftPressed && paddle.x > 0) paddle.x -= paddle.dx;
+
+  animationId = requestAnimationFrame(draw);
+}
+
+startBtn.addEventListener("click", () => {
+  startBtn.style.display = "none";
+  overlay.style.visibility = "hidden";
+  score = 0;
+  scoreBoard.innerText = `Score: ${score}`;
+  ball.x = cw / 2;
+  ball.y = paddle.y - 10;
+  ball.dx = Math.random() > 0.5 ? 2 : -2;
+  ball.dy = -2;
+  initBricks();
+  gameStarted = true;
+  animationId = requestAnimationFrame(draw);
+});
+
+function restartGame() {
+  ball.x = cw / 2;
+  ball.y = paddle.y - 10;
+  ball.dx = Math.random() > 0.5 ? 2 : -2;
+  ball.dy = -2;
+  paddle.x = cw / 2 - paddle.width / 2;
+  initBricks();
+  score = 0;
+  scoreBoard.innerText = `Score: ${score}`;
+  overlay.style.visibility = "hidden";
+  gameStarted = true;
+  animationId = requestAnimationFrame(draw);
+}
+</script>
+</body>
+</html>
