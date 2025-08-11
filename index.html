@@ -71,9 +71,14 @@
     <button id="restart" onclick="restartGame()">Restart</button>
   </div>
   <canvas id="gameCanvas" width="500" height="500"></canvas>
-  <img src="fire-logo.webp" alt="Fire Logo"
-    class="fixed right-[-280px] top-1/2 transform -translate-y-1/2 max-w-[1000px] opacity-80 pointer-events-none z-0" />
-    </div>
+  <!-- Fogo logo for desktop (right side) -->
+<img src="fire-logo.webp" alt="Fire Logo"
+  class="hidden md:block fixed right-[-320px] top-1/2 transform -translate-y-1/2 max-w-[1000px] opacity-80 pointer-events-none z-0" />
+
+<!-- Fogo logo for mobile (below canvas) -->
+<div class="block md:hidden mt-4 flex justify-center">
+  <img src="fire-logo.webp" alt="Fire Logo" class="w-2/3 max-w-xs opacity-70 pointer-events-none" />
+</div>
 
 <script>
 const canvas = document.getElementById("gameCanvas");
@@ -269,5 +274,6 @@ function restartGame() {
 </script>
 </body>
 </html>
+
 
 
