@@ -113,7 +113,7 @@ const ball = {
 const brick = {
   rowCount: 12,
   columnCount: 14,
-  width: 27,
+  width: 30,
   height: 10,
   padding: 5,
   offsetTop: 20,
@@ -249,8 +249,9 @@ startBtn.addEventListener("click", () => {
   overlay.style.visibility = "hidden";
   score = 0;
   scoreBoard.innerText = `Score: ${score}`;
-  ball.x = cw / 2;
-  ball.y = paddle.y - 10;
+  paddle.x = Math.random() * (cw - paddle.width); // random paddle position
+ball.x = paddle.x + paddle.width / 2;           // ball centered on paddle
+ball.y = paddle.y - ball.radius;                // just above paddle
   ball.dx = Math.random() > 0.5 ? 2 : -2;
   ball.dy = -2;
   initBricks();
@@ -259,11 +260,13 @@ startBtn.addEventListener("click", () => {
 });
 
 function restartGame() {
-  ball.x = cw / 2;
-  ball.y = paddle.y - 10;
+  paddle.x = Math.random() * (cw - paddle.width);
+ball.x = paddle.x + paddle.width / 2;
+ball.y = paddle.y - ball.radius;
+
   ball.dx = Math.random() > 0.5 ? 2 : -2;
   ball.dy = -2;
-  paddle.x = cw / 2 - paddle.width / 2;
+  paddle.x = Math.random() * (cw - paddle.width);
   initBricks();
   score = 0;
   scoreBoard.innerText = `Score: ${score}`;
@@ -274,6 +277,7 @@ function restartGame() {
 </script>
 </body>
 </html>
+
 
 
 
