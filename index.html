@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Brick Breaker Game</title>
+  <title>Fogo Brick Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -20,10 +21,11 @@
       touch-action: none;
     }
     #startBtn {
-      margin: 20px;
-      padding: 10px 20px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+      padding: 8px 20px;
       font-size: 18px;
-      background: #00f5d4;
+      background: #fc2a00;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -46,18 +48,46 @@
     }
     #scoreBoard {
       color: white;
-      font-size: 20px;
+      font-size: 25px;
+      margin-bottom: 5px;
+    }
+    #restart {
+      width: 65px;
+      height: 25px;
+      border-radius: 2px;
+      border: black;
+      font-size: 15px;
+      background-color: #fc2a00;
+      color: black;
+      font-size: 15px;
     }
   </style>
 </head>
 <body>
+  <!-- Sidebar with game headings -->
+  <div style="position: fixed; left: 0; top: 0; width: 200px; height: 100%; background: #111; color: white; padding: 15px; box-sizing: border-box; overflow-y: auto;">
+    <h2 style="font-size: 20px; margin-bottom: 15px; color: #fc2a00;">Other Games</h2>
+
+    <a href="https://fogo-snake.vercel.app/" style="display: block; margin-bottom: 15px; text-decoration: none; color: white;">
+      <img src="snake-preview.png" alt="Game 1" style="width: 100%; border-radius: 5px; margin-bottom: 5px;">
+      Fogo-Snake
+    </a>
+
+    <a href="https://fogo-ghost.vercel.app/" style="display: block; margin-bottom: 15px; text-decoration: none; color: white;">
+      <img src="catch-fogo.png" alt="Game 2" style="width: 100%; border-radius: 5px; margin-bottom: 5px;">
+      Catch the fogo
+    </a>
+  </div>
   <div id="scoreBoard">Score: 0</div>
   <button id="startBtn">Start Game</button>
   <div id="gameOverOverlay">
     <p>Game Over!</p>
-    <button onclick="restartGame()">Restart</button>
+    <button id="restart" onclick="restartGame()">Restart</button>
   </div>
   <canvas id="gameCanvas" width="500" height="500"></canvas>
+  <img src="fire-logo.webp" alt="Fire Logo"
+    class="fixed right-[-280px] top-1/2 transform -translate-y-1/2 max-w-[1000px] opacity-80 pointer-events-none z-0" />
+    </div>
 
 <script>
 const canvas = document.getElementById("gameCanvas");
